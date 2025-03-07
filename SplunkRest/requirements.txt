@@ -1,2 +1,2 @@
-# add requirements
 splunkz @ git+https://github.com/zepdev/splunkz.git
+splunk_utils_zszia @ git+https://github.com/zszia/splunk_utils_zszia.git#main

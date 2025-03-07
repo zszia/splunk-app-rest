@@ -1,8 +1,11 @@
-<nav search_view="search">
-  <view name="search" default='true' />
-  <view name="analytics_workspace" />
-  <view name="datasets" />
-  <view name="reports" />
-  <view name="alerts" />
-  <view name="dashboards" />
+<nav>  
+    <view name="kv_store_table"/>
+    <collection label="Search">
+        <view name="search" default="true"/>
+        <view name="analytics_workspace" />
+        <view name="datasets" />
+        <view name="reports" />
+        <view name="alerts" />
+        <view name="dashboards" />
+    </collection>      
 </nav>

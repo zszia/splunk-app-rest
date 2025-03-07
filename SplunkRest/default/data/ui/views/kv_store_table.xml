@@ -1,0 +1,33 @@
+<dashboard version="1.1" script="vm_costs_config.js">
+  <label>VM Costs Config</label>
+  <search id="table_tabulator_search">
+    <query>
+      | inputlookup cost_cluster_kv
+      | sort 0 cluster, type, subtype
+      | table _key,cluster,type,subtype,unit,cost
+    </query>
+    <earliest>-1m</earliest>
+    <latest>now</latest>
+  </search>
+
+  <row>
+		<panel>
+      <html>
+        <div>
+					<div id="table_tabulator" style="min-height: 200px;"></div>
+				</div>
+			</html>
+			<html>
+				<div>
+					<button id="inline-edit-table-save" type="submit" style="margin-right: 15px; margin-bottom: 15px; display: inline-block;" class="btn btn-outline-primary">
+						<span class="glyphicon glyphicon-remove"></span>
+						<i class="bi bi-save text-primary"></i> Save inline changes
+					</button>            
+				</div>
+				<div style="margin-top: 15px; margin-right: 30px; font-style: italic; text-align: right;">
+          <div id="lastRefresh"></div>
+				</div>          
+      </html>     
+		</panel>
+  </row>
+</dashboard>

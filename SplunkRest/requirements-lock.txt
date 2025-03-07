@@ -1,0 +1,11 @@
+charset-normalizer==3.4.1
+croniter==1.4.1
+defusedxml==0.7.1
+deprecation==2.1.0
+packaging==24.0
+solnlib==5.5.0
+sortedcontainers==2.4.0
+splunk-sdk==2.1.0
+splunk-utils-zszia @ git+https://github.com/zszia/splunk_utils_zszia.git@206362fa57826f6462b83a76712f22000fe162ba
+splunkz @ git+https://github.com/zepdev/splunkz.git@020e9123aa1d79f194bea6b73ade8fd6111ccfbe
+tqdm==4.67.1

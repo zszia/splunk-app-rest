@@ -1,3 +1,4 @@
+requests
 pytest
 pluggy
 splunkz @ git+https://github.com/zepdev/splunkz.git
