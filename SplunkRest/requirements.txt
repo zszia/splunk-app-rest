@@ -1,0 +1,2 @@
+# add requirements
+splunkz @ git+https://github.com/zepdev/splunkz.git

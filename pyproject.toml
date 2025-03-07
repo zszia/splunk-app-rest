@@ -1,0 +1,16 @@
+[tool.ruff]
+line-length = 120
+target-version = "py37"
+
+[tool.ruff.lint.isort]
+force-to-top = ["libs"]
+extra-standard-library = ["libs"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+timeout = 180
+testpaths = [
+    "SplunkRest/tests",
+    "SplunkRest/bin",
+]
+addopts = "--continue-on-collection-errors --import-mode=importlib --doctest-modules --ignore-glob='**/___*' --ignore-glob='**/lib/*'"

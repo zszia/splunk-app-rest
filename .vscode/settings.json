@@ -1,0 +1,10 @@
+{
+    "python.analysis.extraPaths": [
+        "./SplunkRest/lib",
+        "./SplunkRest/bin"
+    ],
+    "python.autoComplete.extraPaths": [
+        "./SplunkRest/lib",
+        "./SplunkRest/bin"
+    ]
+}

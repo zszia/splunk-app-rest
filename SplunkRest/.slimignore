@@ -1,0 +1,11 @@
+*.py[co]
+/default/indexes.conf
+/local/*
+/metadata/local.meta
+tests
+requirements*.txt
+restored.state
+/bin/_*local.py
+conftest.py
+___*
+.lib_tmp

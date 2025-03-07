@@ -1,0 +1,117 @@
+name: Build-Test
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  DOCKER_IMAGE: ghcr.io/zepdev/docker-splunkdev/splunk-ci
+  SPLUNK_PASSWORD: splunkdev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: write
+      checks: write
+      packages: read
+ 
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          submodules: recursive
+      
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.PERSONAL_ACCESS_USER }}
+          password: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Build docker image
+        run: docker build -t ci_image --target CI -f docker/Dockerfile .  
+
+      - name: Switch ownership to splunk user
+        run: |
+          sudo chown -R 41812:41812 .
+
+      - name: Start Docker container
+        timeout-minutes: 1
+        run: |
+          echo "machine github.com login ${{ secrets.PERSONAL_ACCESS_USER }} password ${{ secrets.PERSONAL_ACCESS_TOKEN }}" > /tmp/netrc
+          cid=$(docker run -d -e SPLUNK_PASSWORD=${{ env.SPLUNK_PASSWORD }} -e SPLUNK_START_ARGS=--accept-license -v /tmp/netrc:/home/splunk/.netrc -v "$(pwd):/workspace" ci_image) || exit $?
+          echo "cid=$cid" >> $GITHUB_ENV
+
+      - name: Resource and version info
+        run: |
+          docker exec -w /workspace $cid /opt/splunk/bin/splunk version
+          echo Runner [MEMORY]------------------------------------------
+          free
+          echo Runner [DISK]--------------------------------------------
+          df
+
+      - name: Make
+        run: docker exec -w /workspace $cid make
+
+      - name: Make deploy
+        run: docker exec -w /workspace $cid make deploy
+
+      - name: Wait for splunk startup finished
+        timeout-minutes: 5
+        run: |
+          docker logs --follow "$cid" 2>&1 | while read -r line; do
+            echo "$line"
+            if echo "$line" | grep "^Streaming"; then
+                pkill -P $$ docker
+                break
+            fi
+          done
+
+      - name: Install apps
+        run: |
+          docker exec --interactive -w /workspace $cid sh <<EOF  
+          for filename in /tmp/apps/*.tgz deploy/*.tar.gz; do
+              [ -e "\$filename" ] || continue
+              \$SPLUNK_HOME/bin/splunk install app "\$filename" -auth admin:${{ env.SPLUNK_PASSWORD }}
+          done
+          EOF
+
+      - name: Restart splunk
+        run: docker exec -w /workspace $cid /opt/splunk/bin/splunk restart
+
+      - name: Test
+        timeout-minutes: 5
+        run: |
+          docker exec -w /workspace $cid make test-ci
+  
+      - name: Shutdown container
+        if: success() || failure()
+        run: |
+          docker exec $cid /opt/splunk/bin/splunk status
+          docker container stop $cid
+          docker container rm $cid
+
+      - name: Restore ownership to github user
+        if: success() || failure()
+        run: |
+          sudo chown -R $(id -u):$(id -u) .
+
+      - name: Test Reporter
+        uses: dorny/test-reporter@v1.9.1
+        if: success() || failure()
+        with:
+          name: pytest report
+          path: "./test-results/*.xml"
+          reporter: java-junit
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          files: |
+            deploy/*.tar.gz

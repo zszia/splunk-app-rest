@@ -1,0 +1,99 @@
+{
+    "name": "Splunk",
+    "runArgs": [
+        "--name",
+        "dev_${localWorkspaceFolderBasename}",
+        "-v",
+        "${localWorkspaceFolderBasename}_etc:/opt/splunk/etc",
+        "-v",
+        "${localWorkspaceFolderBasename}_var:/opt/splunk/var"
+    ],
+    "build": {
+        "dockerfile": "../docker/Dockerfile",
+        "context": "../docker",
+        "args": {
+            "SPLUNK_START_ARGS": "--accept-license",
+            "SPLUNK_PASSWORD": "${localEnv:SPLUNK_PASSWORD:splunkdev}",
+            "TZ": "Europe/Berlin"
+        }
+    },
+    "appPort": [
+        "8001:8000"
+    ],
+    "portsAttributes": {
+        "8000": {
+            "label": "UI",
+            "onAutoForward": "notify"
+        }
+    },
+    "otherPortsAttributes": {
+        "onAutoForward": "silent"
+    },
+    "remoteUser": "splunk",
+    "overrideCommand": true,
+    "containerEnv": {
+        "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt",
+        "SPLUNKZ_DEBUG_PORT": "5062",
+        "SPLUNKZ_DEBUG_ATTACH_CONSOLE": "1"
+    },
+    "remoteEnv": {
+        "LINK_WORKING_COPY": "true"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // python
+                "ms-python.python@2024.14.1",
+                "ms-python.debugpy@2024.10.0",
+                "njpwerner.autodocstring",
+                "charliermarsh.ruff",
+                // general
+                "Splunk.splunk",
+                "eamodio.gitlens",
+                "github.vscode-github-actions",
+                "streetsidesoftware.code-spell-checker",
+                "buenon.scratchpads"
+            ],
+            "settings": {
+                "extensions.autoUpdate": false,
+                "extensions.autoCheckUpdates": false,
+                "python.languageServer": "Pylance",
+                "python.analysis.typeCheckingMode": "basic",
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.fixAll": "explicit",
+                        "source.organizeImports": "explicit"
+                    }
+                },
+                "autoDocstring.docstringFormat": "sphinx-notypes",
+                "python.testing.unittestEnabled": false,
+                "python.testing.pytestEnabled": true,
+                "splunk.enableSplunkExplorer": false,
+                "github-actions.workflows.pinned.workflows": [
+                    ".github/workflows/makefile.yml"
+                ],
+                "github-actions.workflows.pinned.refresh.enabled": true,
+                "cSpell.customDictionaries": {
+                    "splunk_dict": {
+                        "name": "splunk_dict",
+                        "path": "${workspaceRoot}/.build/splunk_dict.txt",
+                        "addWords": true
+                    },
+                    "custom": true, // Enable the `custom` dictionary
+                    "internal-terms": false // Disable the `internal-terms` dictionary
+                }
+            }
+        },
+        "codespaces": {
+            "repositories": {
+                "zepdev/*": {
+                    "permissions": "read-all"
+                }
+            }
+        }
+    },
+    "postCreateCommand": "make post_create",
+    "postStartCommand": "splunk start"
+}

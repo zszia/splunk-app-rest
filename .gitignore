@@ -1,0 +1,54 @@
+# environment
+venv
+env
+.venv
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+# build/
+develop-eggs/
+dist/
+eggs/
+lib64/
+parts/
+sdist/
+# var/
+*.egg-info/
+.installed.cfg
+*.egg
+lib
+.lib_tmp
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+.pytest_cache
+
+# vscode settings
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+
+# project data - temporary files
+local/
+local.meta
+
+# test results
+test-results
+
+# deployment
+deploy
+
+# no-checkin - marker for temp files
+___*
+
